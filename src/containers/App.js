@@ -5,6 +5,7 @@ import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import './App.css';
 
+import api from '../services/api';
 import { setSearchField } from '../actions';
 
 const mapStateToProps = state => {
@@ -23,25 +24,20 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      robots: []
+      robots: [],
     }
   }
 
   componentDidMount() {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(response=> response.json())
-      .then(users => users.map(() => {
-        if (users[0]) {
-          users[0].id = '4555';
-        }
-        if (users[3]) {
-          users[3].id = '6589';
-        } 
-        if (users[9]) {
-          users[9].id = '073';
-        }
-        return this.setState({ robots: users})
-      }));
+    this.loadRobots();
+  }
+
+  loadRobots = async () => {
+    const response = await api.get(`/users`);
+
+    console.log(response);
+    
+    this.setState({ robots: response.data });
   }
 
   render() {
@@ -53,7 +49,13 @@ class App extends Component {
     });
 
     return !robots.length ?
-      <h1>Loading</h1> :
+      <div className='tc'>
+        <h1 className='f1'>CatFriends</h1>
+        <SearchBox searchChange={onSearchChange}/>
+        <Scroll>
+          <h1>Loading</h1>
+        </Scroll>
+      </div> :
       (
         <div className='tc'>
           <h1 className='f1'>CatFriends</h1>
